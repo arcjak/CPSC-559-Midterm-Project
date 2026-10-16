@@ -3,13 +3,11 @@
 ## Team Members
 
 - Daniel Lee
-  - CWID: TODO
-  - Email: TODO
+  - CWID: 884418989
+  - Email: arcjak@csu.fullerton.edu
 - Team Member 2
   - CWID: TODO
   - Email: TODO
-
-Replace every TODO and the second member placeholder with the actual team information before submission. Remove unused member entries if working individually, or add entries for additional teammates.
 
 ## Project Description
 
