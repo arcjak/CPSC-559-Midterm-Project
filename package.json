@@ -1,0 +1,30 @@
+{
+  "name": "cryptozombies",
+  "version": "1.0.0",
+  "description": "",
+  "main": "truffle-config.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "compile": "truffle compile",
+    "migrate": "truffle migrate --reset --network development",
+    "test": "truffle test --network development",
+    "start": "browser-sync start --server --port 3000 --no-open --no-ui --files index.html,css/*.css,js/*.js",
+    "build": "tsc --project tsconfig.json",
+    "typecheck": "tsc --project tsconfig.json --noEmit",
+    "watch:ts": "tsc --project tsconfig.json --watch",
+    "prestart": "npm run build"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "browser-sync": "^2.27.7",
+    "openzeppelin-solidity": "^4.4.1",
+    "truffle-hdwallet-provider": "^1.0.17",
+    "web3": "^1.6.1"
+  },
+  "devDependencies": {
+    "typescript": "4.9.5"
+  }
+}

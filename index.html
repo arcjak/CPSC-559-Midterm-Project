@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101614">
+  <title>CryptoZombies · Build Your Zombie Army</title>
+  <link rel="icon" href="favicon.ico">
+  <link rel="stylesheet" href="css/style.css">
+  <script defer src="web3.min.js"></script>
+  <script defer src="js/app.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#"><span class="brand-mark" aria-hidden="true">☣</span> CryptoZombies<span class="edition">LOCAL / LAB</span></a>
+    <a href="#battle">Battle arena ↗</a>
+  </header>
+  <main>
+    <section class="hero">
+      <div><p class="eyebrow">YOUR ARMY. YOUR CHAIN.</p><h1>Build Your<br><span>Zombie Army.</span></h1><p class="intro">Raise the undead. Train your fighters. Take on the arena.<br>Your collection lives on your local Ethereum blockchain.</p></div>
+      <aside class="wallet panel" aria-label="Wallet status">
+        <div class="section-label">COMMAND CENTER <span class="dot"></span></div>
+        <dl><div><dt>Wallet</dt><dd id="account">Not connected</dd></div><div><dt>Network</dt><dd id="network">Awaiting connection</dd></div><div><dt>Contract</dt><dd id="deployment">ZombieOwnership</dd></div></dl>
+        <button id="connect" class="primary">Connect MetaMask ↗</button>
+      </aside>
+    </section>
+    <section id="status" class="status" data-kind="info" role="status" aria-live="polite"><span id="message">Connect MetaMask to enter your local zombie lab.</span><code id="txHash"></code></section>
+    <div class="workspace">
+      <section class="army-section" aria-labelledby="army-title">
+        <div class="section-heading"><div><p class="eyebrow">01 / COLLECTION</p><h2 id="army-title">Your army <span id="armyCount" class="count">0</span></h2></div><button id="refresh" data-contract>↻ Show Zombies</button></div>
+        <div id="zombies" class="army" aria-live="polite"><div class="empty"><span aria-hidden="true">☣</span><h3>The lab is quiet.</h3><p>Connect your wallet to discover your zombies.</p></div></div>
+      </section>
+      <aside class="controls">
+        <section class="panel" aria-labelledby="create-title"><p class="eyebrow">02 / GENESIS</p><h2 id="create-title">Raise a zombie</h2><p>Your first zombie is free, apart from gas. One starter per account while you own no zombies.</p><form id="createForm"><label for="zombieName">Zombie name</label><input id="zombieName" maxlength="32" required placeholder="e.g. Professor Brains" autocomplete="off"><button class="primary" data-contract>Create Zombie <span>＋</span></button></form></section>
+        <section id="battle" class="panel battle" aria-labelledby="battle-title"><p class="eyebrow">03 / THE ARENA</p><h2 id="battle-title">Pick your battle.</h2><p>A victory levels up your fighter and spawns a new zombie. Fighters need one day to recover.</p><form id="battleForm"><label for="fighter">Your fighter</label><select id="fighter" required data-contract><option value="">No fighters loaded</option></select><label for="enemy">Enemy zombie ID</label><input id="enemy" required inputmode="numeric" pattern="[0-9]+" placeholder="e.g. 1"><button class="accent" data-contract>Battle →</button></form><p id="battleResult" class="small" aria-live="polite">Results come directly from confirmed contract state.</p></section>
+      </aside>
+    </div>
+    <footer><span>CRYPTOZOMBIES / CPSC 559</span><span>Local Ganache · Ethereum · Made for the undead</span></footer>
+  </main>
+  <template id="zombieTemplate"><article class="zombie-card"><div class="portrait"></div><div class="card-body"><div class="card-top"><span class="token"></span><span class="readiness"></span></div><h3 class="zombie-name"></h3><dl class="stats"><div><dt>Level</dt><dd class="level"></dd></div><div><dt>Wins</dt><dd class="wins"></dd></div><div><dt>Losses</dt><dd class="losses"></dd></div></dl><p class="dna"></p><p class="ready-time small"></p><div class="card-actions"><button class="level-up" data-contract>Level Up</button><button class="transfer-toggle" data-contract>Transfer ↗</button></div><form class="transfer-form" hidden><label>Recipient Ethereum address<input class="recipient" required placeholder="0x…" autocomplete="off"></label><div class="card-actions"><button class="primary" data-contract>Confirm transfer</button><button type="button" class="cancel">Cancel</button></div><p class="small">Transfers are permanent. Confirm the recipient carefully.</p></form></div></article></template>
+</body>
+</html>

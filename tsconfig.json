@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "target": "ES2017",
+    "module": "none",
+    "lib": ["ES2020", "DOM"],
+    "types": [],
+    "rootDir": "src",
+    "outDir": "js",
+    "strict": true,
+    "useUnknownInCatchVariables": false,
+    "noEmitOnError": true,
+    "newLine": "lf"
+  },
+  "include": ["src/**/*.ts"]
+}
