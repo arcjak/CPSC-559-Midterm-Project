@@ -6,8 +6,8 @@
   - CWID: 884418989
   - Email: arcjak@csu.fullerton.edu
 - Team Member 2
-  - CWID: TODO
-  - Email: TODO
+  - CWID: 862178860
+  - Email: gvill005@csu.fullerton.edu
 
 ## Project Description
 
