@@ -3,6 +3,7 @@
     const $ = (id) => document.getElementById(id);
     const ZERO = "0x0000000000000000000000000000000000000000";
     const BATTLE_GAS = 500000;
+    const RENAME_LEVEL = 2; // matches aboveLevel(2, ...) on changeName in zombiehelper.sol
     // Contract methods and PromiEvents vary across legacy Web3 releases.
     let web3, contract, account;
     let army = [], generation = 0, busy = false;
@@ -179,8 +180,42 @@
             await transact(() => contract.methods.levelUp(zombie.id), "Leveling up your zombie", { value: web3.utils.toWei("0.001", "ether") });
         }));
         const form = card.querySelector(".transfer-form");
-        card.querySelector(".transfer-toggle").addEventListener("click", () => { form.hidden = false; form.querySelector("input").focus(); });
-        card.querySelector(".cancel").addEventListener("click", () => { form.hidden = true; });
+        const renameForm = card.querySelector(".rename-form");
+        card.querySelector(".transfer-toggle").addEventListener("click", () => { renameForm.hidden = true; form.hidden = false; form.querySelector("input").focus(); });
+        form.querySelector(".cancel").addEventListener("click", () => { form.hidden = true; });
+        // Rename uses the contract's existing changeName, which requires level 2+.
+        const renameToggle = card.querySelector(".rename-toggle");
+        if (Number(zombie.level) < RENAME_LEVEL)
+            renameToggle.title = `Reach level ${RENAME_LEVEL} to unlock renaming.`;
+        renameToggle.addEventListener("click", () => {
+            if (Number(zombie.level) < RENAME_LEVEL) {
+                status(`Zombie #${zombie.id} is level ${zombie.level}. Level up to ${RENAME_LEVEL} to unlock renaming.`, "error");
+                return;
+            }
+            form.hidden = true;
+            renameForm.hidden = false;
+            const input = renameForm.querySelector(".new-name");
+            input.value = zombie.name === "NoName" ? "" : zombie.name;
+            input.focus();
+        });
+        renameForm.querySelector(".cancel").addEventListener("click", () => { renameForm.hidden = true; });
+        renameForm.addEventListener("submit", event => {
+            event.preventDefault();
+            guard(async () => {
+                requireConnection();
+                const name = renameForm.querySelector(".new-name").value.trim();
+                if (!name || Array.from(name).length > 32)
+                    fail("Enter a new name between 1 and 32 characters.");
+                if (name === zombie.name)
+                    fail("That is already this zombie's name.");
+                await owns(zombie.id);
+                // Re-check the level on-chain so a stale card cannot send a doomed transaction.
+                const current = await contract.methods.zombies(zombie.id).call();
+                if (Number(current.level) < RENAME_LEVEL)
+                    fail(`Zombie #${zombie.id} must be level ${RENAME_LEVEL} or higher to rename.`);
+                await transact(() => contract.methods.changeName(zombie.id, name), `Renaming zombie #${zombie.id} to ${name}`);
+            });
+        });
         // Use the existing transferFrom, checking ownership and recipient before sending.
         form.addEventListener("submit", event => {
             event.preventDefault();

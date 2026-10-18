@@ -418,13 +418,15 @@ input:focus,select:focus {
   padding:9px;
 }
 
-.transfer-form {
+.transfer-form,
+.rename-form {
   border-top:1px solid var(--line);
   padding-top:16px;
   margin-top:15px;
 }
 
-.recipient {
+.recipient,
+.new-name {
   margin:8px 0 12px;
 }
 
