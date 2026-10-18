@@ -57,6 +57,7 @@ interface AppElements {
   const $ = <K extends keyof AppElements>(id: K): AppElements[K] =>
     document.getElementById(id) as AppElements[K];
   const ZERO = "0x0000000000000000000000000000000000000000";
+  const BATTLE_GAS = 500000;
   // Contract methods and PromiEvents vary across legacy Web3 releases.
   let web3: any, contract: any, account: string | null | undefined;
   let army: Zombie[] = [], generation = 0, busy = false;
@@ -215,7 +216,8 @@ interface AppElements {
     makeMethod: () => any,
     label: string,
     options: TransactionOptions = {},
-    resultText?: (receipt: TransactionReceipt) => Promise<string>
+    resultText?: (receipt: TransactionReceipt) => Promise<string>,
+    minGas = 0
   ): Promise<void> {
     requireConnection();
     const ticket = generation, sender = account;
@@ -227,7 +229,7 @@ interface AppElements {
       const gas = await method.estimateGas({ from: sender, ...options });
       if (ticket !== generation) fail("Wallet changed. Please retry with your current account.");
       status(`${label}. Confirm in MetaMask…`, "pending");
-      const receipt: TransactionReceipt = await method.send({ from: sender, ...options, gas: Math.ceil(Number(gas) * 1.2) }).on("transactionHash", (value: string) => {
+      const receipt: TransactionReceipt = await method.send({ from: sender, ...options, gas: Math.max(Math.ceil(Number(gas) * 1.2), minGas) }).on("transactionHash", (value: string) => {
         hash = value;
         if (ticket === generation) status(`${label}. Waiting for confirmation…`, "pending", hash);
       // Web3 1.2.7 also emits errors; attach a listener so the awaited rejection
@@ -292,7 +294,10 @@ interface AppElements {
         const text = `${won ? "Victory!" : "Defeat."} Zombie #${id}: level ${after.level}, ${after.winCount} wins / ${after.lossCount} losses.`;
         if (ticket === generation) $("battleResult").textContent = text;
         return text;
-      });
+      // A battle's outcome is random, so the gas estimate may simulate the cheap
+      // "defeat" path. A victory also mints a new zombie and needs far more gas,
+      // so reserve enough for the win path or the transaction runs out of gas.
+      }, BATTLE_GAS);
     });
   });
   // Invalidate pending reads on wallet changes and rediscover the selected deployment.

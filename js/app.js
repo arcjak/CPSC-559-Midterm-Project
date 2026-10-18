@@ -2,6 +2,7 @@
 (() => {
     const $ = (id) => document.getElementById(id);
     const ZERO = "0x0000000000000000000000000000000000000000";
+    const BATTLE_GAS = 500000;
     // Contract methods and PromiEvents vary across legacy Web3 releases.
     let web3, contract, account;
     let army = [], generation = 0, busy = false;
@@ -205,7 +206,7 @@
             fail("This wallet no longer owns that zombie. Click Show Zombies to refresh.");
     }
     // One transaction path provides estimate, confirmation, hash, and refresh feedback.
-    async function transact(makeMethod, label, options = {}, resultText) {
+    async function transact(makeMethod, label, options = {}, resultText, minGas = 0) {
         requireConnection();
         const ticket = generation, sender = account;
         busy = true;
@@ -218,7 +219,7 @@
             if (ticket !== generation)
                 fail("Wallet changed. Please retry with your current account.");
             status(`${label}. Confirm in MetaMask…`, "pending");
-            const receipt = await method.send(Object.assign(Object.assign({ from: sender }, options), { gas: Math.ceil(Number(gas) * 1.2) })).on("transactionHash", (value) => {
+            const receipt = await method.send(Object.assign(Object.assign({ from: sender }, options), { gas: Math.max(Math.ceil(Number(gas) * 1.2), minGas) })).on("transactionHash", (value) => {
                 hash = value;
                 if (ticket === generation)
                     status(`${label}. Waiting for confirmation…`, "pending", hash);
@@ -320,7 +321,10 @@
                 if (ticket === generation)
                     $("battleResult").textContent = text;
                 return text;
-            });
+                // A battle's outcome is random, so the gas estimate may simulate the cheap
+                // "defeat" path. A victory also mints a new zombie and needs far more gas,
+                // so reserve enough for the win path or the transaction runs out of gas.
+            }, BATTLE_GAS);
         });
     });
     // Invalidate pending reads on wallet changes and rediscover the selected deployment.
