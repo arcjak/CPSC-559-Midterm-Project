@@ -287,6 +287,8 @@ The existing contract permits a starter only while `ownerZombieCount[msg.sender]
 
 Click **Level Up** on ZombieA's card and approve in MetaMask. Its level should increase from 1 to 2. The existing fee is **0.001 ETH**, plus gas. The frontend sends one selected zombie ID instead of the starter's incorrect owned-ID array.
 
+ZombieA is now level 2, which unlocks renaming. Click **Rename** on its card, enter a new name, click **Confirm rename**, and approve in MetaMask. The card and the battle fighter list show the new name. Renaming a level 1 zombie shows an unlock message instead.
+
 ### 3. Switch to Account B and create ZombieB
 
 Switch to the imported Account B in MetaMask and confirm the website's displayed account changes. If it remains on A, check the accounts connected to localhost in MetaMask and reconnect with B.
@@ -351,12 +353,14 @@ The starter already included creation, level-up, ownership lookup, transfer, app
 | 6. Battle UI | The battle form selects an owned fighter and numeric enemy ID, checks ownership/existence/readiness, sends the existing `attack`, and compares stats read before the transaction and at the receipt block. | Show real wins/losses/level and a child if victorious. |
 | 7. Named creation and selected Level Up | Creation validates a 1–32-character name instead of using the account address as a name. Per-card Level Up passes one zombie ID and the original fee. | Create a named zombie and level up its card. |
 | 8. Wallet and transaction handling | Uses `window.ethereum.request`, account/network/disconnect events, invalidation of stale reads, loading controls, gas estimation, confirmation, hashes, readable errors, and post-transaction refresh. The starter already had unguarded reload listeners; these were replaced with safer application updates. | Switch A/B, show a rejection or wrong-network message, and show a transaction hash. |
+| 9. Battle gas fix | Battle outcomes are random, so `estimateGas` could simulate the cheap defeat path (~48k gas) while the real transaction rolled a victory, which also mints a new zombie (~160–175k gas) and ran out of gas. `BATTLE_GAS` in `src/app.ts` now reserves 500k gas for `attack`; `transact()` uses the larger of the estimate and this minimum. | Win a battle: it confirms and creates a NoName child instead of failing with "Transaction failed." |
+| 10. Rename zombies | Each card has a Rename button and form that call the contract's existing `changeName`, unlocked at level 2 (`RENAME_LEVEL`, matching `aboveLevel(2)`). Below level 2 the app explains how to unlock it instead of sending a failing transaction. Names are validated (1–32 characters, not unchanged) and the level is re-checked on-chain before sending. | Rename a level 2+ zombie and see the card and fighter list update; click Rename on a level 1 zombie to see the unlock message. |
 
 The transfer contract fix debits `_from` instead of `msg.sender`, so approved callers do not incorrectly lose their own balance. It also validates the actual owner and nonzero recipient and deletes the previous token approval after transfer. See `_transfer()` and `transferFrom()` in `contracts/zombieownership.sol`.
 
 An additional development change converts the frontend to TypeScript with explicit `Zombie`, `ContractArtifact`, `ContractDeployment`, receipt/options, and DOM interfaces. Blockchain IDs and DNA remain strings to avoid JavaScript number precision loss. Legacy Web3/MetaMask methods and ABI/error boundaries use `any` where appropriate. TypeScript improves development checks; it does not change blockchain execution.
 
-Read-only contract getters use `.call()`. Creation, level-up, battle, and transfer use `.send()` inside `transact()`, triggering MetaMask approval and a gas-paying blockchain transaction. The UI reloads state after confirmation.
+Read-only contract getters use `.call()`. Creation, level-up, battle, transfer, and rename use `.send()` inside `transact()`, triggering MetaMask approval and a gas-paying blockchain transaction. The UI reloads state after confirmation.
 
 For a more detailed code walkthrough and speaker notes, see [docs/PRESENTATION_GUIDE.md](docs/PRESENTATION_GUIDE.md).
 
